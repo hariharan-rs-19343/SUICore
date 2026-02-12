@@ -5,7 +5,6 @@
 //  Created by Hariharan R S on 29/11/24.
 //
 
-#if os(iOS) || targetEnvironment(macCatalyst)
 import SwiftUI
 
 extension UIScreen {
@@ -23,4 +22,3 @@ extension UIScreen {
         return windowScene.screen.bounds.height
     }
 }
-#endif

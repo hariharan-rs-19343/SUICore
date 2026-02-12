@@ -5,6 +5,7 @@
 //  Created by Hariharan R S on 11/02/26.
 //
 
+#if os(iOS) || targetEnvironment(macCatalyst)
 import SwiftUI
 import UIKit
 
@@ -19,3 +20,4 @@ struct UIViewPreview<View: UIView>: UIViewRepresentable {
     func makeUIView(context: Context) -> View { builder() }
     func updateUIView(_ uiView: View, context: Context) {}
 }
+#endif
