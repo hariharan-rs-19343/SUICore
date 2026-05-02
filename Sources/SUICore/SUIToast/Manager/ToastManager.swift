@@ -50,7 +50,7 @@ public final class ToastManager: ObservableObject {
         message: String? = nil,
         style: any ToastStyleProviding = ToastStyle.info,
         duration: ToastDuration = .medium,
-        position: ToastPosition = .top,
+        position: ToastPosition = .bottom,
         animation: ToastAnimationStyle = .spring,
         action: ToastAction? = nil
     ) -> UUID {

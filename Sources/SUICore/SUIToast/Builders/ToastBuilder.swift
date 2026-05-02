@@ -65,6 +65,20 @@ public struct ToastBuilder {
         mutating { $0.configuration.haptic = haptic }
     }
 
+    /// Override the toast's frame bounds. Pass any combination — values
+    /// you don't supply keep their defaults (240 / 480 / nil).
+    public func size(
+        minWidth: CGFloat? = nil,
+        maxWidth: CGFloat? = nil,
+        maxHeight: CGFloat? = nil
+    ) -> Self {
+        mutating {
+            if let minWidth  { $0.configuration.minWidth  = minWidth  }
+            if let maxWidth  { $0.configuration.maxWidth  = maxWidth  }
+            if let maxHeight { $0.configuration.maxHeight = maxHeight }
+        }
+    }
+
     // MARK: - Output
 
     /// Materialise the configuration into an immutable ``Toast`` instance.

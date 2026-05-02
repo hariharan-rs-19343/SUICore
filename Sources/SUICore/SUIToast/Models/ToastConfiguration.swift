@@ -32,6 +32,21 @@ public struct ToastConfiguration {
     /// Optional haptic fired when the toast appears (iOS only).
     public var haptic: HapticFeedback?
 
+    /// Sizing constraints applied to the toast frame.
+    ///
+    /// Without these the toast inherits the host scene's full width,
+    /// which on Mac / Mac Catalyst yields a toast that spans the entire
+    /// window. Defaults are tuned for readability across phone, pad,
+    /// and Mac:
+    ///
+    ///   • `minWidth` keeps short toasts from looking pinched.
+    ///   • `maxWidth` caps wide windows so the toast remains a card,
+    ///     not a banner.
+    ///   • `maxHeight` is opt-in; nil lets multi-line content breathe.
+    public var minWidth: CGFloat
+    public var maxWidth: CGFloat
+    public var maxHeight: CGFloat?
+
     public enum HapticFeedback: Equatable {
         case success, warning, error
         case selection
@@ -47,7 +62,10 @@ public struct ToastConfiguration {
         animation: ToastAnimationStyle = .spring,
         dismissOnTap: Bool = true,
         dismissOnSwipe: Bool = true,
-        haptic: HapticFeedback? = nil
+        haptic: HapticFeedback? = nil,
+        minWidth: CGFloat = 240,
+        maxWidth: CGFloat = 480,
+        maxHeight: CGFloat? = nil
     ) {
         self.style = style
         self.duration = duration
@@ -56,5 +74,8 @@ public struct ToastConfiguration {
         self.dismissOnTap = dismissOnTap
         self.dismissOnSwipe = dismissOnSwipe
         self.haptic = haptic
+        self.minWidth = minWidth
+        self.maxWidth = maxWidth
+        self.maxHeight = maxHeight
     }
 }

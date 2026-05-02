@@ -24,6 +24,17 @@ struct ToastContainerView: View {
 
                 if let toast = manager.currentToast {
                     ToastHostView(toast: toast, manager: manager)
+                        // Width/height bounds first so the toast is sized
+                        // before being padded into the safe area.
+                        .frame(
+                            minWidth: toast.configuration.minWidth,
+                            maxWidth: toast.configuration.maxWidth,
+                            maxHeight: toast.configuration.maxHeight
+                        )
+                        // `fixedSize(horizontal: false, vertical: true)`
+                        // lets the toast hug content vertically while
+                        // still respecting the horizontal min/max bounds.
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 16)
                         .padding(toast.configuration.position == .top ? .top : .bottom, 8)
                         .transition(toast.configuration.animation.transition(for: toast.configuration.position))
