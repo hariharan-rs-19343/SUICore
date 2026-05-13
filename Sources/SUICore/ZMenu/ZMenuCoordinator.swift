@@ -168,7 +168,7 @@ private struct ZMenuOverlayContent: View {
                             VStack(alignment: .leading, spacing: 0) {
                                 content
                             }
-                            .padding(.vertical, 5)
+                            .padding(8)
                             .frame(width: menuWidth)
                         }
                         .scrollBounceBehavior(.basedOnSize)
