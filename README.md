@@ -174,6 +174,45 @@ See [DocumentViewRepresentable](Sources/SUICore/ViewRepresentables/DocumentViewR
 
 ---
 
+### ZMenu
+
+A fully customizable dropdown menu component for Mac Catalyst. Renders the dropdown in a dedicated `UIWindow` overlay, solving layout collapse and zIndex issues with native SwiftUI `Menu`.
+
+```swift
+import SUICore
+
+ZMenu {
+    ZMenuItem("Edit", icon: "pencil") { }
+    ZMenuItem("Delete", icon: "trash", role: .destructive) { }
+    Divider()
+    ZMenuItem("Settings", icon: "gear") { }
+} label: {
+    Text("Options")
+}
+.zMenuStyle(GlassyZMenuStyle())
+```
+
+**Style protocol** — full control over label and dropdown appearance:
+
+```swift
+struct MyStyle: ZMenuStyle {
+    func makeBody(configuration: ZMenuStyleConfiguration) -> some View {
+        configuration.label
+    }
+
+    func makeContent(configuration: ZMenuStyleConfiguration) -> some View {
+        configuration.content
+            .glassEffect(.regular, in: .rect(cornerRadius: 12))
+    }
+}
+```
+
+Built-in styles: `GlassyZMenuStyle` (default, Liquid Glass) and `DefaultZMenuStyle` (plain background).
+
+See [ZMenu](Sources/SUICore/ZMenu/).
+
+---
+
 ### 🧰 Extensions
 
 Curated set of Foundation / SwiftUI / UIKit extensions:
@@ -205,7 +244,18 @@ Sources/SUICore/
 │   ├── LetterAvatar.swift
 │   ├── UIViewPreview.swift
 │   └── ZOSLogs.swift
-└── ViewRepresentables/       # UIKit ↔ SwiftUI bridges
+├── ViewRepresentables/       # UIKit ↔ SwiftUI bridges
+└── ZMenu/                    # Custom dropdown menu (overlay window-based)
+    ├── Views/                # ZMenuContentView
+    ├── Utilities/            # FrameReader
+    ├── ZMenu.swift           # Public container view API
+    ├── ZMenuStyle.swift      # Style protocol + built-in styles
+    ├── ZMenuItem.swift       # Menu item view
+    ├── ZMenuCoordinator.swift
+    ├── ZMenuOverlayWindow.swift
+    ├── ZMenuHostingController.swift
+    ├── ZMenuPositioning.swift
+    └── ZMenuEnvironment.swift
 ```
 
 ## Testing
