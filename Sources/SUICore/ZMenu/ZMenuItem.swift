@@ -6,18 +6,37 @@ public enum ZMenuItemRole {
     case destructive
 }
 
+public enum ZMenuIcon {
+    case system(String)
+    case resource(String, bundle: Bundle? = nil)
+}
+
 public struct ZMenuItem: View {
     let title: String
-    let icon: String?
+    let icon: ZMenuIcon?
     let role: ZMenuItemRole
     let action: () -> Void
 
     @State private var isHovered = false
     @Environment(\.zMenuDismiss) private var dismiss
 
+    /// Creates a menu item with an SF Symbol icon.
     public init(
         _ title: String,
         icon: String? = nil,
+        role: ZMenuItemRole = .standard,
+        action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.icon = icon.map { .system($0) }
+        self.role = role
+        self.action = action
+    }
+
+    /// Creates a menu item with a `ZMenuIcon` (system or resource image).
+    public init(
+        _ title: String,
+        icon: ZMenuIcon?,
         role: ZMenuItemRole = .standard,
         action: @escaping () -> Void
     ) {
@@ -34,8 +53,8 @@ public struct ZMenuItem: View {
         } label: {
             HStack(spacing: 8) {
                 if let icon {
-                    Image(systemName: icon)
-                        .frame(width: 20)
+                    iconView(for: icon)
+                        .frame(width: 20, height: 20)
                 }
                 Text(title)
                 Spacer()
@@ -53,6 +72,20 @@ public struct ZMenuItem: View {
         .buttonStyle(.plain)
         .onHover { hovering in
             isHovered = hovering
+        }
+    }
+
+    @ViewBuilder
+    private func iconView(for icon: ZMenuIcon) -> some View {
+        switch icon {
+        case .system(let name):
+            Image(systemName: name)
+                .resizable()
+                .scaledToFit()
+        case .resource(let name, let bundle):
+            Image(name, bundle: bundle)
+                .resizable()
+                .scaledToFit()
         }
     }
 

@@ -3,11 +3,11 @@ import SwiftUI
 
 // MARK: - Dismiss Environment Key
 
-struct ZMenuDismissKey: EnvironmentKey {
-    nonisolated(unsafe) static var defaultValue: () -> Void = {}
+public struct ZMenuDismissKey: EnvironmentKey {
+    nonisolated(unsafe) public static var defaultValue: () -> Void = {}
 }
 
-extension EnvironmentValues {
+public extension EnvironmentValues {
     var zMenuDismiss: () -> Void {
         get { self[ZMenuDismissKey.self] }
         set { self[ZMenuDismissKey.self] = newValue }
