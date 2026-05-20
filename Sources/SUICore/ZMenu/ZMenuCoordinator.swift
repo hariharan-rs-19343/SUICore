@@ -179,7 +179,7 @@ private struct ZMenuOverlayContent: View {
                     isPresented: true,
                     isPressed: false
                 ))
-                .scaleEffect(isVisible ? 1.0 : 0.92, anchor: .top)
+                .scaleEffect(isVisible ? 1.0 : 0.92, anchor: .topTrailing)
                 .opacity(isVisible ? 1.0 : 0.0)
                 .offset(x: menuPosition.x, y: menuPosition.y)
             }

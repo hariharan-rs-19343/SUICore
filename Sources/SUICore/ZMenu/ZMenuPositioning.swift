@@ -30,9 +30,14 @@ enum ZMenuPositioning {
             y = anchorFrame.minY - spacing - menuSize.height
         }
 
-        var x = anchorFrame.midX - menuSize.width / 2
-        let margin: CGFloat = 8
+        var x: CGFloat
+        if menuSize.width <= anchorFrame.width {
+            x = anchorFrame.minX
+        } else {
+            x = anchorFrame.maxX - menuSize.width
+        }
 
+        let margin: CGFloat = 8
         if x < screenBounds.minX + margin {
             x = screenBounds.minX + margin
         } else if x + menuSize.width > screenBounds.maxX - margin {
