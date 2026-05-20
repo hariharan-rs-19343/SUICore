@@ -28,6 +28,7 @@ public struct ZMenu<MenuContent: View, Label: View>: View {
     @State private var anchorFrame: CGRect = .zero
     @StateObject private var coordinator = ZMenuCoordinator()
     @Environment(\.zMenuStyle) private var style
+    @Environment(\.zMenuLayoutChangeBehavior) private var layoutChangeBehavior
 
     /// Creates a ZMenu with internally managed presentation state.
     public init(
@@ -75,6 +76,7 @@ public struct ZMenu<MenuContent: View, Label: View>: View {
         style.makeBody(configuration: configuration)
             .readFrame { frame in
                 anchorFrame = frame
+                coordinator.updateAnchor(frame)
             }
             .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
@@ -105,6 +107,7 @@ public struct ZMenu<MenuContent: View, Label: View>: View {
                 setPresented(false)
             })
 
+            coordinator.layoutChangeBehavior = layoutChangeBehavior
             coordinator.present(
                 content: menuContent,
                 style: style,

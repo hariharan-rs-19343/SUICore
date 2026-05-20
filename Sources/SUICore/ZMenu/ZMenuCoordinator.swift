@@ -6,11 +6,40 @@ import UIKit
 final class ZMenuCoordinator: ObservableObject {
     @Published var isPresented: Bool = false
     @Published var anchorFrame: CGRect = .zero
+    @Published var menuWidth: CGFloat = 220
+    var screenBounds: CGRect = .zero
+    var layoutChangeBehavior: ZMenuLayoutChangeBehavior = .dismiss
 
     private var overlayWindow: ZMenuOverlayWindow?
     private var hostingController: ZMenuHostingController<AnyView>?
     private var focusModel = ZMenuFocusModel()
     private var presentationID: UUID = UUID()
+
+    func updateAnchor(_ frame: CGRect) {
+        guard isPresented else { return }
+
+        let isLabelVisible = !frame.isEmpty
+            && frame.width > 0
+            && frame.height > 0
+            && frame.intersects(screenBounds)
+        guard isLabelVisible else {
+            dismiss()
+            return
+        }
+
+        switch layoutChangeBehavior {
+        case .dismiss:
+            let dx = abs(frame.origin.x - anchorFrame.origin.x)
+            let dy = abs(frame.origin.y - anchorFrame.origin.y)
+            if dx > 1 || dy > 1 {
+                dismiss()
+                return
+            }
+        case .reposition:
+            anchorFrame = frame
+            menuWidth = max(frame.width, 220)
+        }
+    }
 
     func present<Content: View>(
         content: Content,
@@ -19,6 +48,8 @@ final class ZMenuCoordinator: ObservableObject {
         in windowScene: UIWindowScene
     ) {
         self.anchorFrame = anchorFrame
+        self.menuWidth = max(anchorFrame.width, 220)
+        self.screenBounds = windowScene.screen.bounds
         self.isPresented = true
         self.presentationID = UUID()
         focusModel.reset()
@@ -27,20 +58,10 @@ final class ZMenuCoordinator: ObservableObject {
             self?.dismiss()
         }
 
-        let menuWidth = max(anchorFrame.width, 220)
-
-        let menuPosition = ZMenuPositioning.calculate(
-            anchorFrame: anchorFrame,
-            menuSize: CGSize(width: menuWidth, height: 300),
-            screenBounds: windowScene.screen.bounds
-        )
-
         let overlayContent = ZMenuOverlayContent(
             content: AnyView(content),
             style: style,
-            anchorFrame: anchorFrame,
-            menuWidth: menuWidth,
-            menuPosition: menuPosition,
+            coordinator: self,
             focusModel: focusModel,
             dismiss: dismissAction
         )
@@ -129,9 +150,7 @@ final class ZMenuFocusModel: ObservableObject {
 private struct ZMenuOverlayContent: View {
     let content: AnyView
     let style: AnyZMenuStyle
-    let anchorFrame: CGRect
-    let menuWidth: CGFloat
-    let menuPosition: CGPoint
+    @ObservedObject var coordinator: ZMenuCoordinator
     @ObservedObject var focusModel: ZMenuFocusModel
     let dismiss: () -> Void
 
@@ -139,15 +158,27 @@ private struct ZMenuOverlayContent: View {
 
     private static let absoluteMaxHeight: CGFloat = 320
 
+    private var menuPosition: CGPoint {
+        ZMenuPositioning.calculate(
+            anchorFrame: coordinator.anchorFrame,
+            menuSize: CGSize(width: coordinator.menuWidth, height: 300),
+            screenBounds: coordinator.screenBounds
+        )
+    }
+
     private func maxMenuHeight(in geometry: GeometryProxy) -> CGFloat {
         let screenHeight = geometry.size.height
-        let spaceBelow = screenHeight - menuPosition.y - 16
-        let spaceAbove = menuPosition.y - 16
+        let pos = menuPosition
+        let spaceBelow = screenHeight - pos.y - 16
+        let spaceAbove = pos.y - 16
         let availableSpace = max(spaceBelow, spaceAbove)
         return min(availableSpace, Self.absoluteMaxHeight)
     }
 
     var body: some View {
+        let currentWidth = coordinator.menuWidth
+        let currentPosition = menuPosition
+
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 Color.clear
@@ -169,11 +200,11 @@ private struct ZMenuOverlayContent: View {
                                 content
                             }
                             .padding(6)
-                            .frame(width: menuWidth)
+                            .frame(width: currentWidth)
                         }
                         .scrollBounceBehavior(.basedOnSize)
                         .frame(maxHeight: maxMenuHeight(in: geometry))
-                        .frame(width: menuWidth)
+                        .frame(width: currentWidth)
                         .fixedSize(horizontal: false, vertical: true)
                     ),
                     isPresented: true,
@@ -181,7 +212,9 @@ private struct ZMenuOverlayContent: View {
                 ))
                 .scaleEffect(isVisible ? 1.0 : 0.92, anchor: .topTrailing)
                 .opacity(isVisible ? 1.0 : 0.0)
-                .offset(x: menuPosition.x, y: menuPosition.y)
+                .offset(x: currentPosition.x, y: currentPosition.y)
+                .animation(.easeInOut(duration: 0.2), value: currentPosition.x)
+                .animation(.easeInOut(duration: 0.2), value: currentPosition.y)
             }
         }
         .ignoresSafeArea()

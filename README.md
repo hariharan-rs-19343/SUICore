@@ -209,6 +209,21 @@ struct MyStyle: ZMenuStyle {
 
 Built-in styles: `GlassyZMenuStyle` (default, Liquid Glass) and `DefaultZMenuStyle` (plain background).
 
+**Positioning** — the dropdown trailing-aligns to the label when wider, or left-aligns when narrower. The menu automatically flips above the label when there isn't enough space below, and clamps to screen edges.
+
+**Layout change behavior** — controls what happens when the label moves while the dropdown is open (e.g. sidebar collapse):
+
+```swift
+// Default: dismisses the dropdown when the label moves
+ZMenu { /* items */ } label: { Text("Options") }
+
+// Opt-in: dropdown slides to follow the label
+ZMenu { /* items */ } label: { Text("Options") }
+    .zMenuLayoutChangeBehavior(.reposition)
+```
+
+If the label leaves the screen entirely (hidden or removed), the dropdown auto-dismisses regardless of the chosen behavior.
+
 See [ZMenu](Sources/SUICore/ZMenu/).
 
 ---

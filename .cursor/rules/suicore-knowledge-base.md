@@ -80,11 +80,14 @@ Custom dropdown menu for Mac Catalyst using a UIWindow overlay.
 ### Architecture
 
 ```
-ZMenu (container view) → captures frame → tap triggers ZMenuCoordinator
+ZMenu (container view) → captures frame via readFrame → tap triggers ZMenuCoordinator
   → ZMenuCoordinator creates/reuses ZMenuOverlayWindow (UIWindow at .alert+1)
   → Hosts ZMenuOverlayContent in ZMenuHostingController
   → style.makeContent() applies visual decoration (glass, shadow)
-  → Positioned via ZMenuPositioning (flip/clamp logic)
+  → Positioned via ZMenuPositioning (trailing-align + flip/clamp logic)
+  → readFrame continuously updates coordinator.anchorFrame while presented
+  → ZMenuLayoutChangeBehavior controls response: .dismiss (default) or .reposition
+  → Auto-dismisses if label leaves screen regardless of behavior
 ```
 
 ### Style Protocol
@@ -109,7 +112,7 @@ protocol ZMenuStyle {
 | `ZMenuCoordinator` | `@MainActor ObservableObject`, owns overlay window |
 | `ZMenuOverlayWindow` | UIWindow at elevated level |
 | `ZMenuHostingController` | UIHostingController + keyboard commands |
-| `ZMenuPositioning` | Pure position calculation |
+| `ZMenuPositioning` | Pure position calculation (trailing-align, flip, clamp) |
 | `ZMenuFocusModel` | Keyboard arrow navigation state |
 | `ZMenuItem` | Individual item with hover + auto-dismiss |
 
@@ -117,6 +120,7 @@ protocol ZMenuStyle {
 
 - `\.zMenuStyle` — propagates active style
 - `\.zMenuDismiss` — closure called by items to dismiss menu
+- `\.zMenuLayoutChangeBehavior` — `.dismiss` (default) or `.reposition`; set via `.zMenuLayoutChangeBehavior(_:)` modifier
 
 ---
 
