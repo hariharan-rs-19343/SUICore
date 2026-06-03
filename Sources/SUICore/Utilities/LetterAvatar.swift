@@ -46,6 +46,20 @@ public struct LetterAvatarView: View {
         }
     }
 
+    // MARK: - Image Rendering
+
+    /// Renders the avatar to a `UIImage`. Useful when you need bitmap data
+    /// (e.g. for PNG export). Must be called on the main thread.
+    @MainActor
+    public static func renderImage(_ name: String, size: CGFloat = 100) -> UIImage? {
+        let view = LetterAvatarView(name)
+            .frame(width: size, height: size)
+            .clipShape(Circle())
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = UIScreen.main.scale
+        return renderer.uiImage
+    }
+
     // MARK: - Helpers
 
     private static func extractInitials(from name: String) -> String {
