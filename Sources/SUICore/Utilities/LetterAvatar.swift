@@ -29,10 +29,12 @@ public struct LetterAvatarView: View {
 
     private let name: String
     private let autoColor: Bool
+    private let textColor: Color
 
-    public init(_ name: String, autoColor: Bool = true) {
+    public init(_ name: String, textColor: Color = .white, autoColor: Bool = true) {
         self.name = name
         self.autoColor = autoColor
+        self.textColor = textColor
     }
 
     public var body: some View {
@@ -42,7 +44,7 @@ public struct LetterAvatarView: View {
             }
             Text(Self.extractInitials(from: name))
                 .font(.system(.body, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(textColor)
         }
     }
 
@@ -52,7 +54,7 @@ public struct LetterAvatarView: View {
     /// (e.g. for PNG export). Must be called on the main thread.
     @MainActor
     public static func renderImage(_ name: String, size: CGFloat = 100) -> UIImage? {
-        let view = LetterAvatarView(name)
+        let view = LetterAvatarView(name, textColor: .white)
             .frame(width: size, height: size)
             .clipShape(Circle())
         let renderer = ImageRenderer(content: view)
