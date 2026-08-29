@@ -26,7 +26,7 @@ public struct ZMenu<MenuContent: View, Label: View>: View {
 
     @State private var internalIsPresented = false
     @State private var anchorFrame: CGRect = .zero
-    @StateObject private var coordinator = ZMenuCoordinator()
+    @State private var coordinator = ZMenuCoordinator()
     @Environment(\.zMenuStyle) private var style
     @Environment(\.zMenuLayoutChangeBehavior) private var layoutChangeBehavior
 

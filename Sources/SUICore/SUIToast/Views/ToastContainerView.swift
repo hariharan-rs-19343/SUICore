@@ -13,40 +13,38 @@ import UIKit
 #endif
 
 struct ToastContainerView: View {
-    @ObservedObject var manager: ToastManager
+    let manager: ToastManager
 
     var body: some View {
-        GeometryReader { _ in
-            ZStack(alignment: alignment) {
-                // Transparent layer so the GeometryReader takes full size
-                // without intercepting hit-tests when no toast is visible.
-                Color.clear
+        ZStack(alignment: alignment) {
+            // Transparent layer so the ZStack takes full size without
+            // intercepting hit-tests when no toast is visible.
+            Color.clear
 
-                if let toast = manager.currentToast {
-                    ToastHostView(toast: toast, manager: manager)
-                        // Width/height bounds first so the toast is sized
-                        // before being padded into the safe area.
-                        .frame(
-                            minWidth: toast.configuration.minWidth,
-                            maxWidth: toast.configuration.maxWidth,
-                            maxHeight: toast.configuration.maxHeight
-                        )
-                        // `fixedSize(horizontal: false, vertical: true)`
-                        // lets the toast hug content vertically while
-                        // still respecting the horizontal min/max bounds.
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, 16)
-                        .padding(toast.configuration.position == .top ? .top : .bottom, 8)
-                        .transition(toast.configuration.animation.transition(for: toast.configuration.position))
-                        .id(toast.id) // Force a fresh transition per toast.
-                }
+            if let toast = manager.currentToast {
+                ToastHostView(toast: toast, manager: manager)
+                    // Width/height bounds first so the toast is sized
+                    // before being padded into the safe area.
+                    .frame(
+                        minWidth: toast.configuration.minWidth,
+                        maxWidth: toast.configuration.maxWidth,
+                        maxHeight: toast.configuration.maxHeight
+                    )
+                    // `fixedSize(horizontal: false, vertical: true)`
+                    // lets the toast hug content vertically while
+                    // still respecting the horizontal min/max bounds.
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 16)
+                    .padding(toast.configuration.position == .top ? .top : .bottom, 8)
+                    .transition(toast.configuration.animation.transition(for: toast.configuration.position))
+                    .id(toast.id) // Force a fresh transition per toast.
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
-            .animation(
-                manager.currentToast?.configuration.animation.animation ?? .easeInOut,
-                value: manager.currentToast?.id
-            )
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
+        .animation(
+            manager.currentToast?.configuration.animation.animation ?? .easeInOut,
+            value: manager.currentToast?.id
+        )
         .allowsHitTesting(manager.currentToast != nil)
         .ignoresSafeArea(.keyboard) // Keep toasts out of the keyboard avoidance system.
     }

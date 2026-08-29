@@ -59,7 +59,7 @@ public struct ZMenuItem: View {
                 Text(title)
                 Spacer()
             }
-            .foregroundColor(foregroundColor)
+            .foregroundStyle(foregroundColor)
             .frame(height: 42)
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .leading)

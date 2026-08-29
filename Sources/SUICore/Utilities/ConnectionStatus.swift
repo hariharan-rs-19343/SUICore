@@ -123,7 +123,6 @@ public extension ConnectionStatus {
 }
 
 // MARK: - Async/Await Support
-@available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, *)
 public extension ConnectionStatus {
     /// An `AsyncStream` that yields distinct network availability changes.
     ///

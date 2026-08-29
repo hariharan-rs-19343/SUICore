@@ -1,12 +1,14 @@
 #if targetEnvironment(macCatalyst)
 import SwiftUI
 import UIKit
+import Observation
 
 @MainActor
-final class ZMenuCoordinator: ObservableObject {
-    @Published var isPresented: Bool = false
-    @Published var anchorFrame: CGRect = .zero
-    @Published var menuWidth: CGFloat = 220
+@Observable
+final class ZMenuCoordinator {
+    var isPresented: Bool = false
+    var anchorFrame: CGRect = .zero
+    var menuWidth: CGFloat = 220
     var screenBounds: CGRect = .zero
     var layoutChangeBehavior: ZMenuLayoutChangeBehavior = .dismiss
 
@@ -114,8 +116,9 @@ final class ZMenuCoordinator: ObservableObject {
 // MARK: - Focus Model
 
 @MainActor
-final class ZMenuFocusModel: ObservableObject {
-    @Published var focusedIndex: Int = -1
+@Observable
+final class ZMenuFocusModel {
+    var focusedIndex: Int = -1
     var itemCount: Int = 0
     var onSelect: ((Int) -> Void)?
 
@@ -150,8 +153,8 @@ final class ZMenuFocusModel: ObservableObject {
 private struct ZMenuOverlayContent: View {
     let content: AnyView
     let style: AnyZMenuStyle
-    @ObservedObject var coordinator: ZMenuCoordinator
-    @ObservedObject var focusModel: ZMenuFocusModel
+    let coordinator: ZMenuCoordinator
+    let focusModel: ZMenuFocusModel
     let dismiss: () -> Void
 
     @State private var isVisible = false
@@ -179,6 +182,9 @@ private struct ZMenuOverlayContent: View {
         let currentWidth = coordinator.menuWidth
         let currentPosition = menuPosition
 
+        // GeometryReader (not onGeometryChange) is required here: geometry.size
+        // feeds maxMenuHeight(in:), which sizes the popover in the same
+        // layout pass, so it must be available synchronously.
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 Color.clear

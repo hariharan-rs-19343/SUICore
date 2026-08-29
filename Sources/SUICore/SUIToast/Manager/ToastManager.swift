@@ -7,7 +7,7 @@
 
 
 import SwiftUI
-import Combine
+import Observation
 
 /// Observable controller that schedules toasts.
 ///
@@ -15,17 +15,18 @@ import Combine
 /// `.toastContainer()` view modifier (which also installs the renderer)
 /// or use the shared singleton for app-wide convenience.
 @MainActor
-public final class ToastManager: ObservableObject {
+@Observable
+public final class ToastManager {
 
     /// App-wide singleton. You're free to ignore this and use your own
     /// instance; nothing internal depends on the singleton.
     public static let shared = ToastManager()
 
     /// The toast currently on screen, if any. Observed by the container.
-    @Published public private(set) var currentToast: Toast?
+    public private(set) var currentToast: Toast?
 
     /// Pending toasts waiting their turn. Read-only externally.
-    @Published public private(set) var pending: [Toast] = []
+    public private(set) var pending: [Toast] = []
 
     private var dismissTask: Task<Void, Never>?
 

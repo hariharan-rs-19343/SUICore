@@ -21,7 +21,7 @@ import SwiftUI
 // MARK: - Container modifier
 
 private struct ToastContainerModifier: ViewModifier {
-    @ObservedObject var manager: ToastManager
+    let manager: ToastManager
 
     func body(content: Content) -> some View {
         content.overlay(ToastContainerView(manager: manager))
@@ -46,7 +46,7 @@ public extension View {
 private struct LocalToastModifier: ViewModifier {
     @Binding var isPresented: Bool
     let toast: () -> Toast
-    @StateObject private var localManager = ToastManager()
+    @State private var localManager = ToastManager()
 
     func body(content: Content) -> some View {
         content
@@ -58,11 +58,11 @@ private struct LocalToastModifier: ViewModifier {
                     localManager.clearAll()
                 }
             }
-            .onReceive(localManager.$currentToast) { current in
+            .onChange(of: localManager.currentToast?.id) { _, _ in
                 // Mirror the manager's state back onto the binding so the
                 // caller's `isPresented` flips back to `false` after the
                 // toast auto-dismisses.
-                if current == nil, isPresented {
+                if localManager.currentToast == nil, isPresented {
                     isPresented = false
                 }
             }

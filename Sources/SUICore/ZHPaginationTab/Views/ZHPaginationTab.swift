@@ -60,6 +60,9 @@ public struct ZHPaginationTab<Tab: ZHPaginationTabItem, Content: View>: View {
             )
             .padding(.vertical, 10)
 
+            // GeometryReader (not onGeometryChange) is required here: geo.size
+            // is applied to the paged children in the same layout pass, so it
+            // must be available synchronously rather than one frame later.
             GeometryReader { geo in
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 0) {
