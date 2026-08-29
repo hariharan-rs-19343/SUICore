@@ -5,7 +5,6 @@
 //  Created by Hariharan R S on 23/12/24.
 //
 
-#if os(iOS) || targetEnvironment(macCatalyst)
 import Foundation
 import UniformTypeIdentifiers
 import os.log
@@ -212,5 +211,3 @@ public final class ZFFileManager: @unchecked Sendable {
         }
     }
 }
-#endif
-
