@@ -85,9 +85,9 @@ public struct ZHPillBar<Tab: ZHPaginationTabItem>: View {
         } label: {
             HStack(spacing: 0) {
                 ZStack {
-                    Image(systemName: tab.symbolName)
+                    iconImage(tab.symbolName, isSystem: tab.isSystemImage)
                         .opacity(1 - fillProgress)
-                    Image(systemName: tab.filledSymbolName)
+                    iconImage(tab.filledSymbolName, isSystem: tab.isSystemImage)
                         .opacity(fillProgress)
                 }
                 .font(.system(size: style.iconSize, weight: .medium))
@@ -117,5 +117,20 @@ public struct ZHPillBar<Tab: ZHPaginationTabItem>: View {
         .animation(.spring(response: springResponse, dampingFraction: springDamping), value: fillProgress)
         .accessibilityLabel(tab.label)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    // MARK: - Icon Helper
+
+    @ViewBuilder
+    private func iconImage(_ name: String, isSystem: Bool) -> some View {
+        if isSystem {
+            Image(systemName: name)
+        } else {
+            Image(name)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: style.iconSize, height: style.iconSize)
+        }
     }
 }

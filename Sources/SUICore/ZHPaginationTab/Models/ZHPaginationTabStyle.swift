@@ -91,11 +91,46 @@ public extension ZHPaginationTabStyle {
 
     /// Light style for light-mode interfaces.
     static let light = ZHPaginationTabStyle(
-        labelActiveColor: Color(uiColor: .darkText),
-        labelInactiveColor: Color(uiColor: .secondaryLabel),
-        pillActiveColor: Color(uiColor: .systemGray5),
-        pillIdleColor: Color(uiColor: .systemGray6)
+        labelActiveColor: ZHPaginationColor.labelActiveColor,
+        labelInactiveColor: ZHPaginationColor.labelInactiveColor,
+        pillActiveColor: ZHPaginationColor.pillActiveColor,
+        pillIdleColor: ZHPaginationColor.pillIdleColor
     )
+}
+
+enum ZHPaginationColor {
+    
+    static var labelActiveColor: Color {
+        #if os(macOS)
+        return Color(NSColor.textColor)
+        #else
+        return Color(uiColor: .darkText)
+        #endif
+    }
+    
+    static var labelInactiveColor: Color {
+        #if os(macOS)
+        return Color(NSColor.secondaryLabelColor)
+        #else
+        return Color(uiColor: .secondaryLabel)
+        #endif
+    }
+    
+    static var pillActiveColor: Color {
+        #if os(macOS)
+        return Color(NSColor.controlAccentColor)
+        #else
+        return Color(uiColor: .systemGray5)
+        #endif
+    }
+    
+    static var pillIdleColor: Color {
+        #if os(macOS)
+        return Color(NSColor.controlBackgroundColor)
+        #else
+        return Color(uiColor: .systemGray6)
+        #endif
+    }
 }
 
 // MARK: - Environment Keys

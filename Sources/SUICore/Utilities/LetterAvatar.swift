@@ -6,6 +6,13 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+public typealias PlatformImage = UIImage
+#else
+import AppKit
+public typealias PlatformImage = NSImage
+#endif
 
 /// A SwiftUI view that displays a letter avatar generated from a person's name.
 ///
@@ -50,16 +57,21 @@ public struct LetterAvatarView: View {
 
     // MARK: - Image Rendering
 
-    /// Renders the avatar to a `UIImage`. Useful when you need bitmap data
-    /// (e.g. for PNG export). Must be called on the main thread.
+    /// Renders the avatar to a platform image (`UIImage`/`NSImage`). Useful when you need
+    /// bitmap data (e.g. for PNG export). Must be called on the main thread.
     @MainActor
-    public static func renderImage(_ name: String, size: CGFloat = 100) -> UIImage? {
+    public static func renderImage(_ name: String, size: CGFloat = 100) -> PlatformImage? {
         let view = LetterAvatarView(name, textColor: .white)
             .frame(width: size, height: size)
             .clipShape(Circle())
         let renderer = ImageRenderer(content: view)
-        renderer.scale = UIScreen.main.scale
+        #if canImport(UIKit)
+        renderer.scale = UITraitCollection.current.displayScale
         return renderer.uiImage
+        #else
+        renderer.scale = NSScreen.main?.backingScaleFactor ?? 1
+        return renderer.nsImage
+        #endif
     }
 
     // MARK: - Helpers
@@ -90,22 +102,3 @@ public struct LetterAvatarView: View {
         return Color(.sRGB, red: red, green: green, blue: blue, opacity: 1)
     }
 }
-
-#if DEBUG
-#Preview {
-    HStack(spacing: 16) {
-        LetterAvatarView("John Doe")
-            .frame(width: 60, height: 60)
-            .clipShape(Circle())
-
-        LetterAvatarView("Alice Smith")
-            .frame(width: 60, height: 60)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-
-        LetterAvatarView("Bob", autoColor: false)
-            .frame(width: 60, height: 60)
-            .background(Circle().fill(.purple))
-    }
-    .padding()
-}
-#endif
