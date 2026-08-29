@@ -9,6 +9,7 @@ import Foundation
 import OSLog
 
 /// Log level enumeration to define the type of log messages
+@available(*, deprecated, message: "Use ZHLogLevel with ZHLoggerProtocol / ZHDefaultLogger instead.")
 public enum LogLevel: String {
     case debug = "🔍 DEBUG"
     case info = "ℹ️ INFO"
@@ -19,6 +20,7 @@ public enum LogLevel: String {
 }
 
 /// ZOSLogs class using Swift's native OSLog framework
+@available(*, deprecated, message: "Use ZHLoggerProtocol / ZHDefaultLogger instead — ZOSLogs is a fixed singleton with no way for a consumer to intercept, redirect, or test its output.")
 public final class ZOSLogs: Sendable {
     
     /// Shared instance for global access
