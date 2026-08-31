@@ -58,7 +58,6 @@ extension ZHLogCategory: CustomStringConvertible {
 
 public protocol ZHLoggerProtocol: Sendable {
     /// - Parameters:
-    ///   - level: Severity of the event.
     ///   - category: Which subsystem the event originated from.
     ///   - message: Human-readable description of the event.
     ///   - metadata: Structured key/value details. Should never contain raw
@@ -67,13 +66,44 @@ public protocol ZHLoggerProtocol: Sendable {
     ///   - file: Source file the event was logged from.
     ///   - function: Function the event was logged from.
     ///   - line: Line the event was logged from.
-    func log(level: LogLevel, category: ZHLogCategory, message: String, metadata: [String: String]?, file: String, function: String, line: Int)
+    func info(category: ZHLogCategory, message: String, metadata: [String: String]?, file: String, function: String, line: Int)
+    
+    func debug(category: ZHLogCategory, message: String, metadata: [String: String]?, file: String, function: String, line: Int)
+    
+    func warning(category: ZHLogCategory, message: String, metadata: [String: String]?, file: String, function: String, line: Int)
+    
+    func error(category: ZHLogCategory, message: String, metadata: [String: String]?, file: String, function: String, line: Int)
+    
+    func critical(category: ZHLogCategory, message: String, metadata: [String: String]?, file: String, function: String, line: Int)
+    
+    func notice(category: ZHLogCategory, message: String, metadata: [String: String]?, file: String, function: String, line: Int)
 }
 
 public extension ZHLoggerProtocol {
     /// Convenience overload — captures the call site automatically and
     /// defaults `metadata` to `nil`.
-    func log(level: LogLevel, category: ZHLogCategory, message: String, metadata: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
-        log(level: level, category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    func info(category: ZHLogCategory, message: String, metadata: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+        info(category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    func debug(category: ZHLogCategory, message: String, metadata: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+        debug(category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    func warning(category: ZHLogCategory, message: String, metadata: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+        warning(category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    func error(category: ZHLogCategory, message: String, metadata: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+        error(category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    func critical(category: ZHLogCategory, message: String, metadata: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+        critical(category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    func notice(category: ZHLogCategory, message: String, metadata: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+        notice(category: category, message: message, metadata: metadata, file: file, function: function, line: line)
     }
 }
+

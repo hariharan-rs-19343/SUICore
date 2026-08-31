@@ -15,6 +15,7 @@ import Foundation
 import OSLog
 
 public struct ZHDefaultLogger: ZHLoggerProtocol {
+    
     private let subsystem: String
 
     /// - Parameter subsystem: OSLog subsystem identifier grouping this
@@ -25,7 +26,7 @@ public struct ZHDefaultLogger: ZHLoggerProtocol {
         self.subsystem = subsystem
     }
 
-    public func log(level: LogLevel, category: ZHLogCategory = .general, message: String, metadata: [String: String]?, file: String, function: String, line: Int) {
+    private func log(level: LogLevel, category: ZHLogCategory = .general, message: String, metadata: [String: String]?, file: String, function: String, line: Int) {
         let logger = Logger(subsystem: subsystem, category: category.description)
         let fileName = (file as NSString).lastPathComponent
         let suffix = metadata.map { pairs in
