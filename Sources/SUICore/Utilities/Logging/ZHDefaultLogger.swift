@@ -35,12 +35,36 @@ public struct ZHDefaultLogger: ZHLoggerProtocol {
         let logMessage = "[\(level.rawValue)] \(fileName):\(line) \(function) -> \(message)\(suffix)"
 
         switch level {
-        case .debug: logger.debug("\(logMessage, privacy: .auto)")
-        case .info: logger.info("\(logMessage, privacy: .auto)")
-        case .notice: logger.notice("\(logMessage, privacy: .auto)")
-        case .warning: logger.warning("\(logMessage, privacy: .auto)")
-        case .error: logger.error("\(logMessage, privacy: .auto)")
-        case .critical: logger.critical("\(logMessage, privacy: .auto)")
+            case .debug: logger.debug("\(logMessage, privacy: .auto)")
+            case .info: logger.info("\(logMessage, privacy: .auto)")
+            case .notice: logger.notice("\(logMessage, privacy: .auto)")
+            case .warning: logger.warning("\(logMessage, privacy: .auto)")
+            case .error: logger.error("\(logMessage, privacy: .auto)")
+            case .critical: logger.critical("\(logMessage, privacy: .auto)")
         }
+    }
+    
+    public func info(category: ZHLogCategory = .general, message: String, metadata: [String: String]? = nil, file: String = #file, function: String = #function, line: Int = #line) {
+        log(level: .info, category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    public func debug(category: ZHLogCategory = .general, message: String, metadata: [String: String]? = nil, file: String = #file, function: String = #function, line: Int = #line) {
+        log(level: .debug, category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    public func warning(category: ZHLogCategory = .general, message: String, metadata: [String: String]? = nil, file: String = #file, function: String = #function, line: Int = #line) {
+        log(level: .warning, category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    public func error(category: ZHLogCategory = .general, message: String, metadata: [String: String]? = nil, file: String = #file, function: String = #function, line: Int = #line) {
+        log(level: .error, category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    public func critical(category: ZHLogCategory = .general, message: String, metadata: [String: String]? = nil, file: String = #file, function: String = #function, line: Int = #line) {
+        log(level: .critical, category: category, message: message, metadata: metadata, file: file, function: function, line: line)
+    }
+    
+    public func notice(category: ZHLogCategory = .general, message: String, metadata: [String: String]? = nil, file: String = #file, function: String = #function, line: Int = #line) {
+        log(level: .notice, category: category, message: message, metadata: metadata, file: file, function: function, line: line)
     }
 }
