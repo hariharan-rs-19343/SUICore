@@ -18,11 +18,13 @@ import SwiftUI
 /// A type that describes the visual appearance of a toast.
 ///
 /// Implementations are intentionally lightweight value types so they can be
-/// composed, stored, and diffed efficiently by SwiftUI.
+/// composed, stored, and diffed efficiently by SwiftUI. `Sendable` is required
+/// so a ``Toast`` can be built off the main actor and handed to the manager.
 ///
-/// The toast background is always Liquid Glass (iOS 26+ `.glassEffect()`).
+/// The toast background is always Liquid Glass (`.glassEffect()`), drawn in a
+/// rounded rectangle whose radius comes from ``ToastConfiguration/cornerRadius``.
 /// Styles control colour and iconography on top of that.
-public protocol ToastStyleProviding {
+public protocol ToastStyleProviding: Sendable {
 
     /// Optional SF Symbol name displayed before the title.
     ///

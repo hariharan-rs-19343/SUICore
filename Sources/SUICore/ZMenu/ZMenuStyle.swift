@@ -1,4 +1,4 @@
-#if targetEnvironment(macCatalyst)
+
 import SwiftUI
 
 // MARK: - Configuration
@@ -54,7 +54,7 @@ public struct DefaultZMenuStyle: ZMenuStyle {
 
     public func makeContent(configuration: ZMenuStyleConfiguration) -> some View {
         configuration.content
-            .background(Color(.systemBackground))
+            .background(.background)
             .cornerRadius(12)
             .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 4)
             .overlay(
@@ -132,6 +132,3 @@ public extension View {
         environment(\.zMenuStyle, AnyZMenuStyle(style))
     }
 }
-
-
-#endif

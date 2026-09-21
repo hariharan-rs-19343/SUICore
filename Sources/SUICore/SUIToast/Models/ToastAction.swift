@@ -6,15 +6,17 @@
 //
 
 
+import Foundation
+
 /// Describes an action button rendered inside a toast.
 ///
 /// The action is purely declarative — interaction states (highlight,
 /// disabled) are handled by the toast view; this struct only carries
 /// the data and the closure to invoke on tap.
-public struct ToastAction {
+public struct ToastAction: Sendable {
 
     /// Behavior to apply after the action handler runs.
-    public enum DismissBehavior {
+    public enum DismissBehavior: Equatable, Sendable {
         /// Keep the toast on screen after the action fires.
         case keep
         /// Dismiss the toast immediately when the action fires.
@@ -32,13 +34,15 @@ public struct ToastAction {
     public var dismissBehavior: DismissBehavior
 
     /// Callback executed when the user taps the action.
-    public let handler: () -> Void
+    ///
+    /// Invoked from the SwiftUI render path, hence the main-actor isolation.
+    public let handler: @MainActor @Sendable () -> Void
 
     public init(
         title: String,
         isEnabled: Bool = true,
         dismissBehavior: DismissBehavior = .dismiss,
-        handler: @escaping () -> Void
+        handler: @escaping @MainActor @Sendable () -> Void
     ) {
         self.title = title
         self.isEnabled = isEnabled

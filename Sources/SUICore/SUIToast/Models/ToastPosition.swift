@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 /// Where a toast should appear within the safe area of its host view.
-public enum ToastPosition: Equatable {
+public enum ToastPosition: Equatable, Sendable {
     case top
     case bottom
 

@@ -10,8 +10,10 @@ import SwiftUI
 
 struct DefaultToastView: View {
     let content: Toast.StandardContent
-    let style: any ToastStyleProviding
-    let dismiss: () -> Void
+    let configuration: ToastConfiguration
+    let dismiss: @MainActor @Sendable () -> Void
+
+    private var style: any ToastStyleProviding { configuration.style }
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -37,16 +39,44 @@ struct DefaultToastView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            // Title + message read as one VoiceOver element; the buttons
+            // below stay separately focusable.
+            .accessibilityElement(children: .combine)
 
             if let action = content.action {
                 ToastActionButton(action: action, accentColor: style.accentColor, dismiss: dismiss)
             }
+
+            if showsCloseButton {
+                ToastCloseButton(tint: style.textColor, dismiss: dismiss)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .glassEffect(.regular)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isStaticText)
+        .glassEffect(.regular, in: .rect(cornerRadius: configuration.cornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: configuration.cornerRadius, style: .continuous)
+                .strokeBorder(style.borderColor, lineWidth: 1)
+                .allowsHitTesting(false)
+        }
+        // `.contain`, not `.combine`: combining would swallow the action and
+        // close buttons and make them unreachable to VoiceOver.
+        .accessibilityElement(children: .contain)
+    }
+
+    /// Swipe-to-dismiss is awkward with a mouse, and a persistent toast has
+    /// no timer to fall back on — both cases get an explicit close button.
+    private var showsCloseButton: Bool {
+        switch configuration.closeButtonVisibility {
+        case .visible: return true
+        case .hidden:  return false
+        case .automatic:
+            #if os(macOS)
+            return true
+            #else
+            return configuration.duration == .persistent
+            #endif
+        }
     }
 }
 
@@ -57,7 +87,7 @@ struct DefaultToastView: View {
 private struct ToastActionButton: View {
     let action: ToastAction
     let accentColor: Color
-    let dismiss: () -> Void
+    let dismiss: @MainActor @Sendable () -> Void
 
     var body: some View {
         Button {
@@ -74,6 +104,25 @@ private struct ToastActionButton: View {
         .buttonStyle(ToastActionButtonStyle(accentColor: accentColor))
         .disabled(!action.isEnabled)
         .opacity(action.isEnabled ? 1.0 : 0.4)
+    }
+}
+
+// MARK: - Close button
+
+private struct ToastCloseButton: View {
+    let tint: Color
+    let dismiss: @MainActor @Sendable () -> Void
+
+    var body: some View {
+        Button(action: dismiss) {
+            Image(systemName: "xmark")
+                .font(.system(size: 11, weight: .bold))
+                .padding(6)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(tint.opacity(0.6))
+        .accessibilityLabel(Text("Dismiss"))
     }
 }
 

@@ -27,6 +27,7 @@ public struct ToastBuilder {
     private var message: String?
     private var action: ToastAction?
     private var configuration: ToastConfiguration
+    private var customContent: AnyToastContent?
 
     public init(title: String) {
         self.title = title
@@ -41,7 +42,7 @@ public struct ToastBuilder {
         _ title: String,
         isEnabled: Bool = true,
         dismissBehavior: ToastAction.DismissBehavior = .dismiss,
-        handler: @escaping () -> Void
+        handler: @escaping @MainActor @Sendable () -> Void
     ) -> Self {
         mutating {
             $0.action = ToastAction(
@@ -53,6 +54,15 @@ public struct ToastBuilder {
         }
     }
 
+    /// Replace the standard layout with a fully custom body.
+    ///
+    /// Title, message and action set on the builder are ignored once custom
+    /// content is supplied — the framework still owns queueing, animation,
+    /// gestures and safe-area handling.
+    public func content(_ provider: some ToastContentProviding) -> Self {
+        mutating { $0.customContent = AnyToastContent(provider) }
+    }
+
     // MARK: - Configuration
 
     public func style(_ style: any ToastStyleProviding) -> Self     { mutating { $0.configuration.style = style } }
@@ -61,8 +71,13 @@ public struct ToastBuilder {
     public func animation(_ animation: ToastAnimationStyle) -> Self  { mutating { $0.configuration.animation = animation } }
     public func dismissOnTap(_ flag: Bool) -> Self                   { mutating { $0.configuration.dismissOnTap = flag } }
     public func dismissOnSwipe(_ flag: Bool) -> Self                 { mutating { $0.configuration.dismissOnSwipe = flag } }
+    public func cornerRadius(_ radius: CGFloat) -> Self              { mutating { $0.configuration.cornerRadius = radius } }
     public func haptic(_ haptic: ToastConfiguration.HapticFeedback?) -> Self {
         mutating { $0.configuration.haptic = haptic }
+    }
+
+    public func closeButton(_ visibility: ToastConfiguration.CloseButtonVisibility) -> Self {
+        mutating { $0.configuration.closeButtonVisibility = visibility }
     }
 
     /// Override the toast's frame bounds. Pass any combination — values
@@ -83,7 +98,10 @@ public struct ToastBuilder {
 
     /// Materialise the configuration into an immutable ``Toast`` instance.
     public func build() -> Toast {
-        Toast(title: title, message: message, action: action, configuration: configuration)
+        if let customContent {
+            return Toast(configuration: configuration, payload: .custom(customContent))
+        }
+        return Toast(title: title, message: message, action: action, configuration: configuration)
     }
 
     // MARK: - Helper

@@ -1,4 +1,4 @@
-#if targetEnvironment(macCatalyst)
+
 import SwiftUI
 
 // MARK: - Layout Change Behavior
@@ -44,5 +44,3 @@ public extension EnvironmentValues {
         set { self[ZMenuDismissKey.self] = newValue }
     }
 }
-
-#endif

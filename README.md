@@ -5,16 +5,18 @@
 ## Requirements
 
 - Swift **6.2+**
-- iOS **26+** / Mac Catalyst **26+**
+- iOS **26+** / macOS **26+**
 - Xcode 26 or later
 
 ## Modules
 
 ### 🔔 SUIToast
 
-A flexible, queue-based toast notification system for SwiftUI with a fluent builder API, custom styles, animations, haptics, and per-toast actions.
+A flexible, queue-based toast notification system for SwiftUI with a fluent builder API, custom styles, animations, haptics, and per-toast actions. Runs on iOS and macOS from the same call site — haptics, hover-to-pause, the close button and Escape-to-dismiss each resolve to whatever the platform supports.
 
-**Install the renderer once near the root of your scene:**
+`Toast` is `Sendable`, so you can build one off the main actor and `await` the show.
+
+**Install the renderer near the root of your scene:**
 
 ```swift
 import SwiftUI
@@ -31,15 +33,23 @@ struct MyApp: App {
 }
 ```
 
+The modifier also injects the manager into the environment, so any child view can reach it without the singleton:
+
+```swift
+@Environment(ToastManager.self) private var toasts
+```
+
 **Show a toast — quick API:**
 
 ```swift
 ToastManager.shared.show(
     title: "Saved",
     message: "Your changes are safe.",
-    style: ToastStyle.success,
-    duration: .short,
-    position: .top
+    configuration: ToastConfiguration(
+        style: ToastStyle.success,
+        duration: .short,
+        position: .top
+    )
 )
 ```
 
@@ -48,7 +58,7 @@ ToastManager.shared.show(
 ```swift
 let toast = ToastBuilder(title: "Saved")
     .message("Your changes are safe.")
-    .style(.success)
+    .style(ToastStyle.success)
     .duration(.short)
     .position(.bottom)
     .animation(.spring)
@@ -56,8 +66,64 @@ let toast = ToastBuilder(title: "Saved")
     .action("Undo") { undo() }
     .build()
 
-ToastManager.shared.show(toast)
+ToastManager.shared.show(toast) // returns the toast's UUID
 ```
+
+**Custom content** — the framework keeps the queue, animation, gestures and safe-area handling; you own the body:
+
+```swift
+struct SyncProgress: ToastContentProviding {
+    let percent: Double
+
+    func makeBody(dismiss: @escaping @MainActor @Sendable () -> Void) -> some View {
+        HStack {
+            ProgressView(value: percent)
+            Button("Stop", action: dismiss)
+        }
+        .padding()
+    }
+}
+
+let toast = ToastBuilder(title: "Syncing")
+    .content(SyncProgress(percent: 0.4))
+    .duration(.persistent)
+    .build()
+```
+
+**Queue behaviour** — one toast is visible at a time and the rest wait their turn:
+
+```swift
+let manager = ToastManager(
+    maxQueueDepth: 3,           // oldest pending toast is dropped past this
+    queuePolicy: .dropIfDuplicate  // or .enqueue (default) / .replaceCurrent
+)
+```
+
+`.dropIfDuplicate` compares title and message, which keeps a retry loop from queueing the same failure fifty times.
+
+**Sheets, covers and multiple windows** — install a container in every presentation layer that needs one:
+
+```swift
+ContentView()
+    .toastContainer()
+    .sheet(isPresented: $editing) {
+        EditorView().toastContainer()   // wins while the sheet is up
+    }
+```
+
+This is not redundant. SwiftUI presents a sheet above the presenting view's hierarchy, so the root container's overlay cannot draw over it — without a container inside the sheet, a toast raised from sheet code renders behind the sheet and is never seen.
+
+When several containers observe the same manager, the frontmost one draws and the rest stand down, so a toast still appears exactly once. Dismiss the sheet mid-toast and the parent container picks it up; the countdown never stopped. Containers in a window that isn't active stand down too, and `.toastContainer(isActive:)` overrides the election by hand when the automatic answer is wrong.
+
+For genuinely separate windows that should each keep their own queue:
+
+```swift
+WindowGroup {
+    ContentView().windowScopedToastContainer()
+}
+```
+
+Code inside such a window must reach the manager through `@Environment(ToastManager.self)` — `ToastManager.shared` is a different instance and its toasts will not render there.
 
 **Local, SwiftUI-style presentation (no global manager required):**
 
@@ -68,11 +134,13 @@ struct DemoView: View {
     var body: some View {
         Button("Show toast") { isPresented = true }
             .toast(isPresented: $isPresented) {
-                ToastBuilder(title: "Hello").style(.info).build()
+                ToastBuilder(title: "Hello").style(ToastStyle.info).build()
             }
     }
 }
 ```
+
+**Accessibility** — toasts are announced to VoiceOver on appear, auto-dismiss durations stretch while VoiceOver runs, action and close buttons stay individually focusable, and Reduce Motion collapses every transition to a cross-fade.
 
 ---
 
